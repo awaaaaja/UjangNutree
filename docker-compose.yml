@@ -1,0 +1,49 @@
+services:
+  frontend:
+    image: node:20
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./ujangnutree/frontend:/app
+    working_dir: /app
+    command: npm run dev
+
+  backend:
+    image: php:8.3-fpm
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ujangnutree/backend:/app
+    working_dir: /app
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    depends_on:
+      - database
+      - meilisearch
+      - redis
+
+  database:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ujangnutree
+      POSTGRES_PASSWORD: secret
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.7
+    ports:
+      - "7700:7700"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  ml-service:
+    image: python:3.11-slim
+    ports:
+      - "8001:8001"
+    working_dir: /app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001
+    volumes:
+      - ./ujangnutree/ml-service:/app

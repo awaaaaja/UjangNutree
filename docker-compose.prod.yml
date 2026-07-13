@@ -1,0 +1,46 @@
+services:
+  frontend:
+    build:
+      context: ./ujangnutree/frontend
+    ports:
+      - "3000:3000"
+    restart: always
+
+  backend:
+    build:
+      context: ./ujangnutree/backend
+    ports:
+      - "8000:8000"
+    restart: always
+    depends_on:
+      - database
+      - meilisearch
+      - redis
+
+  database:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ujangnutree
+      POSTGRES_PASSWORD: secret
+    restart: always
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.7
+    ports:
+      - "7700:7700"
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: always
+
+  ml-service:
+    build:
+      context: ./ujangnutree/ml-service
+    ports:
+      - "8001:8001"
+    restart: always
